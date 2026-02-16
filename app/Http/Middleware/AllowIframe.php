@@ -15,10 +15,7 @@ class AllowIframe
         $response = $next($request);
 
         // Origins allowed to embed the app via iframe
-        $allowed = [
-            'http://chat.wsl.local',
-            'https://chat.wsl.local',
-        ];
+        $allowed = config('services.chatwoot.allowed_origins', []);
 
         $frameAncestors = implode(' ', array_merge(["'self'"], $allowed));
 

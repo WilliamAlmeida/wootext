@@ -39,6 +39,7 @@ return [
         'url' => env('CHATWOOT_URL'),
         'api_token' => env('CHATWOOT_API_TOKEN'),
         'account_id' => env('CHATWOOT_ACCOUNT_ID'),
+        'allowed_origins' => explode(',', env('CHATWOOT_ALLOW_ORIGINS', '')),
     ],
 
     'evolution' => [
