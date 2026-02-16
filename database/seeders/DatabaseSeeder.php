@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
         // Get the Chatwoot account ID from the configuration
         $account_id = config('services.chatwoot.account_id');
 
+        if(!$account_id) return;
+
         // Create Funnel and Stages about Seller
         DB::beginTransaction();
 
