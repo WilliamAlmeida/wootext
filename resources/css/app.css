@@ -1,0 +1,94 @@
+@import 'tailwindcss';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+[x-cloak] {
+    display: none !important;
+}
+
+@layer base {
+    :root {
+        font-family: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center gap-2 rounded-lg border border-transparent bg-zinc-200 px-3 py-2 text-sm font-medium text-zinc-900 shadow-sm transition hover:-translate-y-[1px] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus-visible:ring-offset-zinc-950;
+    }
+
+    .btn-primary {
+        @apply bg-sky-600 text-white hover:bg-sky-700 border-sky-600;
+    }
+
+    .btn-ghost {
+        @apply bg-transparent border-transparent text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800;
+    }
+
+    .btn-outline {
+        @apply bg-transparent border-zinc-300 text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800;
+    }
+
+    .btn-danger {
+        @apply bg-red-600 text-white hover:bg-red-700 border-red-600;
+    }
+
+    .btn-sm {
+        @apply px-2.5 py-1.5 text-xs rounded-md;
+    }
+
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-zinc-100 px-2 py-1 text-xs font-semibold text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200;
+    }
+
+    .badge-muted {
+        @apply border-transparent bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100;
+    }
+
+    .input {
+        @apply block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50;
+    }
+
+    .textarea {
+        @apply block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 min-h-[120px];
+    }
+
+    .select {
+        @apply block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 pr-8;
+    }
+
+    .label {
+        @apply block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1;
+    }
+
+    .checkbox {
+        @apply h-4 w-4 rounded border border-zinc-300 text-sky-600 focus:ring-sky-500 dark:border-zinc-700 dark:bg-zinc-900;
+    }
+
+    .card {
+        @apply border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 p-2;
+    }
+
+    .card-woot {
+        @apply border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 p-2;
+    }
+
+    .nav-link {
+        @apply flex items-center gap-3 rounded-lg px-3 py-2 text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800 transition;
+    }
+
+    .nav-link-active {
+        @apply bg-gray-100 text-sky-600;
+    }
+
+    .modal-backdrop {
+        @apply fixed inset-0 bg-black/50 flex items-center justify-center z-40;
+    }
+
+    .modal-panel {
+        @apply w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800;
+    }
+}

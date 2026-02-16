@@ -1,0 +1,1 @@
+@include('layouts.auth', ['title' => $title ?? null, 'slot' => $slot])

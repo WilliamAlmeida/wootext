@@ -1,0 +1,40 @@
+**.git
+**.gitignore
+**.gitattributes
+**.vscode
+**.history
+**.DS_Store
+
+# vendor/**/test*
+# vendor/**/tests*
+# vendor/**/Tests*
+
+**/vendor
+!**/public/vendor
+!**/resources/views/vendor
+**/public/storage
+# public/build
+**/docker/*
+!**/docker/scripts/
+!**/docker/scripts/etc/
+!**/docker/scripts/etc/*
+
+**/coverage*
+**/*node_modules
+
+**/.env
+**/phpunit.xml
+**/README.md
+**/LICENSE
+**/CHANGELOG.md
+**/.styleci.yml
+**/.editorconfig
+**/bootstrap/cache/*
+**/storage/app/*
+**/storage/debugbar/*
+**/storage/framework/cache/*
+**/storage/framework/sessions/*
+**/storage/framework/testing/*
+**/storage/framework/views/*
+**/storage/logs/*
+**/sftp-config.json

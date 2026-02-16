@@ -1,0 +1,1 @@
+<x-phosphor-kanban-duotone class="w-6 h-6" />
