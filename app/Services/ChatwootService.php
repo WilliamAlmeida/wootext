@@ -309,6 +309,17 @@ class ChatwootService
     }
 
     /**
+     * Delete a webhook subscription.
+     */
+    public function deleteWebhook(int $webhookId): bool
+    {
+        $response = $this->client()
+            ->delete("/api/v1/accounts/{$this->accountId}/webhooks/{$webhookId}");
+
+        return $response->successful();
+    }
+
+    /**
      * Search contacts by query.
      */
     public function searchContacts(string $query): array
