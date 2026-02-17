@@ -121,5 +121,5 @@ it('creates waha session app and webhook integration', function () {
 
     expect($fakeDb->webhookUpdates)->toHaveCount(1)
         ->and($fakeDb->webhookUpdates[0]['channel_id'])->toBe(20)
-        ->and($fakeDb->webhookUpdates[0]['url'])->toBe("http://waha.test/api/webhooks/chatwoot/{$sessionName}/app-123");
+        ->and($fakeDb->webhookUpdates[0]['url'])->toBe("http://waha.test/webhooks/chatwoot/{$sessionName}/app-123");
 });

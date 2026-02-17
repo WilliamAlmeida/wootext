@@ -171,7 +171,7 @@ class ConnectionManager extends Component
                                     $appId = $createdApp['id'] ?? $createdApp['_id'] ?? ($createdApp['config']['id'] ?? null);
 
                                     if ($appId) {
-                                        $wahaWebhookForChatwoot = config('services.waha.url')."/api/webhooks/chatwoot/{$providerName}/{$appId}";
+                                        $wahaWebhookForChatwoot = config('services.waha.url')."/webhooks/chatwoot/{$providerName}/{$appId}";
 
                                         // 3.5. Atualizar a URL do Webhook no banco do Chatwoot
                                         $chatwootDb->updateChannelApiWebhook($channelId, $wahaWebhookForChatwoot);
