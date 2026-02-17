@@ -55,11 +55,6 @@ class CardDetail extends Component
         $this->conversation = null;
     }
 
-    public function render(): View
-    {
-        return view('livewire.components.kanban.card-detail');
-    }
-
     #[On('refresh-card-detail')]
     public function loadCard(): void
     {
@@ -161,5 +156,10 @@ class CardDetail extends Component
         } catch (\Throwable $exception) {
             Log::error('Failed to delete note', ['error' => $exception->getMessage()]);
         }
+    }
+
+    public function render(): View
+    {
+        return view('livewire.components.kanban.card-detail');
     }
 }

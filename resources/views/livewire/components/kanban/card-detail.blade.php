@@ -18,7 +18,7 @@
                     <button type="button" wire:click="$dispatch('open-move-card-modal', [{{ $conversationId }}])" class="inline-flex items-center px-2 py-1.5 text-sm font-medium text-zinc-700 bg-transparent hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 rounded-md transition-colors">
                         <x-phosphor-arrows-down-up class="w-4 h-4" />
                     </button>
-                    <button type="button" wire:click="$parent.closeCardDetail" class="inline-flex items-center px-2 py-1.5 text-sm font-medium text-zinc-700 bg-transparent hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 rounded-md transition-colors">
+                    <button type="button" wire:click="closeFromEvent" class="inline-flex items-center px-2 py-1.5 text-sm font-medium text-zinc-700 bg-transparent hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 rounded-md transition-colors">
                         <x-phosphor-x class="w-4 h-4" />
                     </button>
                 </div>
