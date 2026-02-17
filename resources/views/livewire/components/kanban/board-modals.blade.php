@@ -46,6 +46,4 @@
             </div>
         </x-modal>
     @endif
-
-    <livewire:components.schedule-messages-modal />
 </div>
