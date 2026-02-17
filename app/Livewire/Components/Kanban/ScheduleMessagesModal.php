@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Components;
+namespace App\Livewire\Components\Kanban;
 
 use App\Models\Card;
 use Illuminate\Support\Facades\Storage;
@@ -228,6 +228,6 @@ class ScheduleMessagesModal extends Component
 
     public function render(): View
     {
-        return view('livewire.components.schedule-messages-modal');
+        return view('livewire.components.kanban.schedule-messages-modal');
     }
 }
