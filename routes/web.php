@@ -3,7 +3,6 @@
 use App\Livewire\Pages\Connections\ConnectionManager;
 use App\Livewire\Pages\Dashboard\Dashboard;
 use App\Livewire\Pages\Home\Home;
-use App\Livewire\Pages\Kanban\Board;
 use App\Livewire\Pages\ScheduleMessages\ScheduleMessages;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +16,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['user_vinculed', 'verified'])->group(function () {
         // Kanban
-        Route::get('kanban', Board::class)->name('kanban');
+        Route::get('kanban', \App\Livewire\Pages\Kanban\Board::class)->name('kanban');
+        Route::get('kanban3', \App\Livewire\Pages\Kanban3\Board::class)->name('kanban3');
 
         // Conexões
         Route::get('connections', ConnectionManager::class)->name('connections');
