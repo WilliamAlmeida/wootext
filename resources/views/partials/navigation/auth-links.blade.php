@@ -6,9 +6,13 @@
     <x-phosphor-whatsapp-logo class="size-5" />
     <span>{{ __('Conexões') }}</span>
 </a>
-<a href="{{ route('kanban') }}" class="nav-link {{ request()->routeIs('kanban*') ? 'nav-link-active' : '' }}" wire:navigate>
+<a href="{{ route('kanban') }}" class="nav-link {{ request()->routeIs('kanban') ? 'nav-link-active' : '' }}" wire:navigate>
     <x-phosphor-squares-four class="size-5" />
     <span>{{ __('Kanban') }}</span>
+</a>
+<a href="{{ route('kanban3') }}" class="nav-link {{ request()->routeIs('kanban3') ? 'nav-link-active' : '' }}" wire:navigate>
+    <x-phosphor-squares-four class="size-5" />
+    <span>{{ __('Kanban 3') }}</span>
 </a>
 <a href="{{ route('scheduled-messages') }}" class="nav-link {{ request()->routeIs('scheduled-messages*') ? 'nav-link-active' : '' }}" wire:navigate>
     <x-phosphor-clock class="size-5" />
