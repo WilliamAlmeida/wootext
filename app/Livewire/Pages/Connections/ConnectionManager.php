@@ -120,7 +120,7 @@ class ConnectionManager extends Component
                         if (isset($inbox['id'])) {
                             // 3.0 Create Chatwoot webhook to forward selected events to our backend
                             try {
-                                $backendWebhookUrl = route('webhooks.chatwoot');
+                                $backendWebhookUrl = route('webhooks.chatwoot', ['account_id' => $this->getAccountId()]);
 
                                 $chatwootService->createWebhook($backendWebhookUrl, [
                                     'conversation_created',

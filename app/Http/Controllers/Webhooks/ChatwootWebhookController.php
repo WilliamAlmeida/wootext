@@ -35,9 +35,8 @@ class ChatwootWebhookController extends Controller
     {
         $conversation = $data['conversation'] ?? $data;
         $conversationId = data_get($conversation, 'id') ?? data_get($data, 'id');
-        $accountId = data_get($data, 'account.id')
-            ?? data_get($conversation, 'account.id')
-            ?? $this->chatwootService->getAccountId();
+        $accountId = data_get($conversation, 'messages.0.account_id') ?? data_get($data, 'account_id') ?? $this->chatwootService->getAccountId();
+        $contactId = data_get($data, 'contact_inbox.contact_id');
         $status = data_get($conversation, 'status', 'open');
         $phoneNumber = data_get($conversation, 'meta.sender.phone_number');
         $customName = data_get($conversation, 'meta.sender.name');
@@ -78,6 +77,7 @@ class ChatwootWebhookController extends Controller
             $card = Card::query()->create([
                 'conversation_id' => $conversationId,
                 'account_id' => $accountId,
+                'contact_id' => $contactId,
                 'stage_id' => $targetStage->id,
                 'order' => $maxOrder + 1,
                 'phone_number' => $phoneNumber,
@@ -94,9 +94,8 @@ class ChatwootWebhookController extends Controller
     {
         $conversation = $data['conversation'] ?? $data;
         $conversationId = data_get($conversation, 'id') ?? data_get($data, 'id');
-        $accountId = data_get($data, 'account.id')
-            ?? data_get($conversation, 'account.id')
-            ?? $this->chatwootService->getAccountId();
+        $accountId = data_get($conversation, 'messages.0.account_id', $this->chatwootService->getAccountId());
+        $contactId = data_get($conversation, 'contact_inbox.contact_id');
         $status = data_get($conversation, 'status');
         $phoneNumber = data_get($conversation, 'meta.sender.phone_number');
 
@@ -138,6 +137,7 @@ class ChatwootWebhookController extends Controller
             Card::query()->create([
                 'conversation_id' => $conversationId,
                 'account_id' => $accountId,
+                'contact_id' => $contactId,
                 'stage_id' => $targetStage->id,
                 'order' => $maxOrder + 1,
                 'phone_number' => $phoneNumber,
@@ -151,9 +151,7 @@ class ChatwootWebhookController extends Controller
     {
         $conversation = $data['conversation'] ?? $data;
         $conversationId = data_get($conversation, 'id') ?? data_get($data, 'id');
-        $accountId = data_get($data, 'account.id')
-            ?? data_get($conversation, 'account.id')
-            ?? $this->chatwootService->getAccountId();
+        $accountId = data_get($conversation, 'messages.0.account_id', $this->chatwootService->getAccountId());
         $contactId = data_get($conversation, 'contact_inbox.contact_id');
         $phoneNumber = data_get($conversation, 'meta.sender.phone_number');
         $changedAttributes = data_get($data, 'changed_attributes', []);
@@ -199,10 +197,10 @@ class ChatwootWebhookController extends Controller
                 $card = Card::query()->create([
                     'conversation_id' => $conversationId,
                     'account_id' => $accountId,
+                    'contact_id' => $contactId,
                     'stage_id' => $targetStage->id,
                     'order' => $maxOrder + 1,
                     'phone_number' => $phoneNumber,
-                    'contact_id' => $contactId,
                 ]);
 
                 Log::info('Card created from conversation_updated', ['card_id' => $card->id, 'conversation_id' => $conversationId]);
