@@ -91,4 +91,8 @@
     .modal-panel {
         @apply w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800;
     }
+
+    .kanban-card-chosen {
+        @apply !bg-blue-100 ring-2 ring-blue-600;
+    }
 }
