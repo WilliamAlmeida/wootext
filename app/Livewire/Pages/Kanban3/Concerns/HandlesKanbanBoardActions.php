@@ -19,10 +19,13 @@ trait HandlesKanbanBoardActions
 
     protected function moveCardToStage(int $cardId, int $position, int $stageId): void
     {
-        $card = Card::query()->with('stage.funnel')->findOrFail($cardId);
-        $targetStage = Stage::query()->with('funnel')->findOrFail($stageId);
+        $card = Card::query()->with([
+            'stage' => fn($query) => $query->with('funnel:id,is_system')->select('id', 'funnel_id'),
+        ])->select('id', 'stage_id', 'conversation_id')->findOrFail($cardId);
 
-        $oldStageId = $card->stage_id;
+        $targetStage = Stage::query()->with('funnel:id,is_system')->select('id', 'funnel_id', 'chatwoot_status')->findOrFail($stageId);
+
+        // $oldStageId = $card->stage_id;
         $shouldUpdateStage = true;
 
         if ($targetStage->chatwoot_status && $card->stage?->funnel && ! $card->stage->funnel->is_system) {
@@ -39,7 +42,7 @@ trait HandlesKanbanBoardActions
 
         if ($targetStage->chatwoot_status) {
             try {
-                app(ChatwootService::class)->updateConversationStatus(
+                 app(ChatwootService::class)->updateConversationStatus(
                     $card->conversation_id,
                     $targetStage->chatwoot_status,
                 );
@@ -50,13 +53,17 @@ trait HandlesKanbanBoardActions
             }
         }
 
-        if ($shouldUpdateStage) {
-            $this->reorderCardsInStage($targetStage->id, $cardId, $position);
+        /* Deprecated: Reordering is now handled in the frontend without re-saving all cards. The backend simply updates the moved card's stage and order, and the frontend takes care of the rest. This avoids unnecessary database updates and potential
+            if ($shouldUpdateStage) {
+                $this->reorderCardsInStage($targetStage->id, $cardId, $position);
 
-            if ($oldStageId !== $targetStage->id) {
-                $this->reindexStageCards($oldStageId);
+                if ($oldStageId !== $targetStage->id) {
+                    $this->reindexStageCards($oldStageId);
+                }
             }
-        }
+        */
+
+        $this->dispatch('notify', type: 'success', message: 'Card movido com sucesso!', duration: 1000);
 
         $this->refreshBoardData();
     }
@@ -98,12 +105,58 @@ trait HandlesKanbanBoardActions
 
         $stage->delete();
         unset($this->stages, $this->stageCards);
+
+        $cacheKey = $this->boardCacheKey($this->getAccountId(), "stages:{$this->activeFunnel->id}");
+        cache()->forget($cacheKey);
     }
 
     public function deleteCard(int $cardId): void
     {
-        Card::destroy($cardId);
+        $card = Card::query()->with(['stage.funnel'])->find($cardId);
+
+        if (! $card) {
+            return;
+        }
+
+        // If the card is already in a system funnel stage, delete it.
+        if ($card->stage?->funnel && $card->stage->funnel->is_system) {
+            Card::destroy($cardId);
+            unset($this->stageCards, $this->stages);
+
+            return;
+        }
+
+        // Otherwise, try to move it to the account's system funnel's first stage.
+        $systemFunnel = Funnel::where('account_id', $this->getAccountId())->where('is_system', true)->first();
+
+        if (! $systemFunnel) {
+            // No system funnel found — fallback to delete to avoid orphaned cards.
+            Card::destroy($cardId);
+            unset($this->stageCards, $this->stages);
+
+            return;
+        }
+
+        $systemStage = Stage::where('funnel_id', $systemFunnel->id)->orderBy('order')->first();
+
+        if (! $systemStage) {
+            // No stage in the system funnel — fallback to delete.
+            Card::destroy($cardId);
+            unset($this->stageCards, $this->stages);
+
+            return;
+        }
+
+        $card->update([
+            'stage_id' => $systemStage->id,
+        ]);
+
         unset($this->stageCards, $this->stages);
+
+        $accountId = $this->getAccountId();
+        $searchKey = md5(trim($this->search));
+        $cacheKey = $this->boardCacheKey($accountId, "stage-cards:{$this->activeFunnel->id}:{$searchKey}");
+        cache()->forget($cacheKey);
     }
 
     public function openCardDetail(int $conversationId): void
@@ -116,8 +169,13 @@ trait HandlesKanbanBoardActions
         $this->dispatch('close-card-detail');
     }
 
+    /**
+     * Deprecated: Reordering is now handled in the frontend without re-saving all cards. This method is kept for reference and potential future use if server-side reordering is needed again.
+     */
     private function reorderCardsInStage(int $stageId, int $movedCardId, int $newPosition): void
     {
+        return;
+
         $cards = Card::where('stage_id', $stageId)
             ->where('id', '!=', $movedCardId)
             ->orderBy('order')
@@ -133,8 +191,13 @@ trait HandlesKanbanBoardActions
         }
     }
 
+    /**
+     * Deprecated: This method is no longer used due to frontend handling of card ordering. Kept for reference.
+     */
     private function reindexStageCards(int $stageId): void
     {
+        return;
+
         $cards = Card::where('stage_id', $stageId)->orderBy('order')->get();
 
         foreach ($cards->values() as $index => $card) {

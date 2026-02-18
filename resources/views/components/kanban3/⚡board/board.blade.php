@@ -1,4 +1,4 @@
-<div x-data="kanbanBoard($wire)" x-init="init()">
+<div x-data="kanbanBoard($wire)">
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-x-auto max-w-screen">
             <div class="flex items-center gap-3">
@@ -103,12 +103,13 @@
             </template>
 
             <template x-if="!loading && stages.length">
-                <div class="flex gap-4 h-full max-w-screen sm:max-w-[calc(100vw-20rem)] px-4">
+                <div class="flex gap-4 h-full max-w-screen sm:max-w-[calc(100vw-20rem)] px-4" x-ref="boardRoot">
                     <template x-for="stage in stages" :key="stage.id">
                         <div class="flex flex-col w-80 min-w-[320px] bg-zinc-100 dark:bg-zinc-800 rounded-xl shrink-0">
                             <div class="flex items-center justify-between px-3 py-2.5 border-b border-zinc-200 dark:border-zinc-700">
                                 <div class="flex items-center gap-2">
                                     <span class="inline-block w-2.5 h-2.5 rounded-full" :style="`background-color: ${stage.color}`"></span>
+                                    <span class="font-semibold text-sm text-zinc-900 dark:text-zinc-100" x-text="stage.id"></span>
                                     <span class="font-semibold text-sm text-zinc-900 dark:text-zinc-100" x-text="stage.name"></span>
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300" x-text="stage.total_cards"></span>
                                 </div>
@@ -161,7 +162,7 @@
                                                     <span class="mt-0.5 text-white bg-red-500 rounded-lg w-5 h-5 text-xs flex items-center justify-center mr-1" x-text="card.unread_count"></span>
                                                 </template>
 
-                                                <div x-data="{ open: false }" class="relative" x-cloak>
+                                                <div x-data="{ open: false }" class="relative no-drag" x-cloak>
                                                     <button @click="open = !open" class="inline-flex items-center justify-center p-0.5 text-sm font-medium rounded-lg bg-transparent text-gray-700 hover:bg-gray-200 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors">
                                                         <x-phosphor-dots-three-vertical class="w-4 h-4" />
                                                     </button>
@@ -260,9 +261,12 @@ document.addEventListener('livewire:init', () => {
         cardsPerStage: 10,
         searchTimeout: null,
         sortables: [],
+        boardRoot: null,
         chatwootBaseUrl: @js(str(config('services.chatwoot.url'))->replace('https', 'http')->toString()),
 
         async init() {
+            this.boardRoot = this.$refs.boardRoot ?? this.$el;
+
             await this.fetchBoard();
 
             this.listeners = [
@@ -325,7 +329,7 @@ document.addEventListener('livewire:init', () => {
                 try {
                     const payload = await wire.updateSearch(this.search, this.cardsPerStage);
                     this.applyBoard(payload);
-                    this.$nextTick(() => this.initSortables());
+                    // this.$nextTick(() => this.initSortables());
                 } catch (e) {
                     this.error = 'Erro ao buscar cards.';
                 }
@@ -364,36 +368,39 @@ document.addEventListener('livewire:init', () => {
                 this.error = 'Erro ao carregar mais cards.';
             } finally {
                 stage.loadingMore = false;
-                this.$nextTick(() => this.initSortables());
+                // this.$nextTick(() => this.initSortables());
             }
         },
 
         initSortables() {
             if (typeof Sortable === 'undefined') {
+                console.error('SortableJS is not loaded. Please ensure it is included in your project.');
                 return;
             }
 
             this.destroySortables();
 
-            this.$el.querySelectorAll('[data-stage-id]').forEach((column) => {
+            const boardElement = this.boardRoot ?? this.$refs.boardRoot ?? this.$el;
+            if (!boardElement) {
+                console.error('Board root element not found.');
+                return;
+            }
+
+            boardElement.querySelectorAll('[data-stage-id]').forEach((column) => {
                 const instance = Sortable.create(column, {
                     group: 'kanban-cards',
                     animation: 150,
                     ghostClass: 'opacity-40',
                     dragClass: 'shadow-2xl',
-                    chosenClass: 'ring-2',
+                    chosenClass: 'kanban-card-chosen',
+                    filter: '.no-drag',
                     onEnd: async (event) => {
                         const cardId = Number(event.item.dataset.cardId);
                         const toStageId = Number(event.to.dataset.stageId);
                         const fromStageId = Number(event.from.dataset.stageId);
 
-                        if (!cardId || !toStageId) {
-                            return;
-                        }
-
-                        if (toStageId === fromStageId && event.oldIndex === event.newIndex) {
-                            return;
-                        }
+                        if (!cardId || !toStageId) return;
+                        if (toStageId === fromStageId) return; // && event.oldIndex === event.newIndex
 
                         try {
                             const payload = await wire.moveCard(cardId, toStageId, event.newIndex, this.cardsPerStage);
@@ -402,7 +409,7 @@ document.addEventListener('livewire:init', () => {
                             this.error = 'Erro ao mover card. Recarregando board...';
                             await this.fetchBoard();
                         } finally {
-                            this.$nextTick(() => this.initSortables());
+                            // this.$nextTick(() => this.initSortables());
                         }
                     },
                 });
@@ -451,7 +458,7 @@ document.addEventListener('livewire:init', () => {
             } catch (e) {
                 this.error = 'Erro ao excluir card.';
             } finally {
-                this.$nextTick(() => this.initSortables());
+                // this.$nextTick(() => this.initSortables());
             }
         },
 
@@ -466,7 +473,7 @@ document.addEventListener('livewire:init', () => {
             } catch (e) {
                 this.error = 'Erro ao excluir etapa.';
             } finally {
-                this.$nextTick(() => this.initSortables());
+                // this.$nextTick(() => this.initSortables());
             }
         },
 
@@ -485,7 +492,7 @@ document.addEventListener('livewire:init', () => {
             } catch (e) {
                 this.error = 'Erro ao excluir funil.';
             } finally {
-                this.$nextTick(() => this.initSortables());
+                // this.$nextTick(() => this.initSortables());
             }
         },
     }));

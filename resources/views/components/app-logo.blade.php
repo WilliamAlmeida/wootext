@@ -1,1 +1,1 @@
-<x-phosphor-kanban-duotone class="w-6 h-6" />
+<x-phosphor-chat-teardrop-dots-duotone {{ $attributes->merge(['class' => 'w-6 h-6 transform -scale-x-100']) }} />

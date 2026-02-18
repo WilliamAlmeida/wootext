@@ -8,10 +8,10 @@
         <div x-data="{ mobileNav: false }" class="min-h-screen flex">
             @if(!env('SIDEBAR_COLLAPSED', false))
                 <aside class="hidden lg:flex w-64 flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-                    <div class="h-14 flex items-center px-4 border-b border-zinc-200 dark:border-zinc-800">
-                        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 font-semibold" wire:navigate>
-                            <x-app-logo class="h-7" />
-                            <span class="text-sm tracking-tight">{{ config('app.name') }}</span>
+                    <div class="h-14 flex items-center px-4 border-b border-zinc-200 dark:border-zinc-800 text-blue-600">
+                        <a href="{{ route('dashboard') }}" class="flex items-center gap-1 font-semibold" wire:navigate>
+                            <x-app-logo class="w-9 h-9" />
+                            <span class=" leading-4">Woot<br>Extension</span>
                         </a>
                     </div>
 
