@@ -37,6 +37,14 @@ new class extends Component
         $this->loading = true;
         $instances = [];
 
+        $cacheKey = "instances_{$this->provider}_account_{$this->getAccountId()}";
+        $cached = cache()->get($cacheKey);
+        if ($cached) {
+            $this->instances = $cached;
+            $this->loading = false;
+            return;
+        }
+
         if($this->provider == 'waha') {
             try {
                 $wahaSessions = app(WahaService::class)->listSessions();
@@ -89,6 +97,9 @@ new class extends Component
 
         $this->instances = $instances;
         $this->loading = false;
+
+        // Cache por 30 segundos para evitar chamadas excessivas
+        cache()->put($cacheKey, $instances, now()->addSeconds(30));
     }
 
     private function normalizeStatus(string $status): string
@@ -178,7 +189,7 @@ new class extends Component
                     </button>
 
                     <button type="button" 
-                        wire:click="$dispatch('openSettingsModal', '{{ $instance['name'] }}')"
+                        wire:click="$dispatch('openSettingsModal', {name: '{{ $instance['name'] }}', provider: '{{ $instance['provider'] }}', friendly_name: '{{ $instance['friendly_name'] }}'})"
                         class="btn btn-ghost btn-xs" title="Configurações">
                         <x-phosphor-gear class="size-5" />
                     </button>

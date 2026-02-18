@@ -83,6 +83,15 @@ class WahaService
         return $response->json() ?? [];
     }
 
+    public function updateSessionConfig(string $name, array $config): array
+    {
+        $response = $this->client()->put("/api/sessions/{$name}", [
+            'config' => $config,
+        ]);
+
+        return $response->json() ?? [];
+    }
+
     // ── Auth / QR ──
 
     public function getQRCode(string $name): array

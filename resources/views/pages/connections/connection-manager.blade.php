@@ -60,50 +60,6 @@
     </x-modal>
     @endif
 
-    {{-- Settings Modal --}}
-    @if($showSettingsModal)
-    <x-modal model="showSettingsModal" title="Configurações de Webhook" maxWidth="lg">
-        <div class="space-y-4">
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                Use estas informações para configurar o webhook manualmente no seu provedor se necessário.
-            </p>
-
-            <div>
-                <label class="label">URL do Webhook</label>
-                <div class="flex gap-2">
-                    <input type="text" readonly value="{{ $selectedWebhookUrl }}" class="input flex-1 bg-zinc-50 dark:bg-zinc-800" />
-                    <button type="button" x-on:click="navigator.clipboard.writeText('{{ $selectedWebhookUrl }}'); $dispatch('notify', { type: 'success', message: 'Copiado!' })" class="btn btn-outline btn-xs">
-                        Copiar
-                    </button>
-                </div>
-            </div>
-
-            <div>
-                <label class="label">Token de Segurança (API Key)</label>
-                <div class="flex gap-2">
-                    <input type="text" readonly value="{{ $selectedToken }}" class="input flex-1 bg-zinc-50 dark:bg-zinc-800" />
-                    <button type="button" x-on:click="navigator.clipboard.writeText('{{ $selectedToken }}'); $dispatch('notify', { type: 'success', message: 'Copiado!' })" class="btn btn-outline btn-xs">
-                        Copiar
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
-                <div class="flex gap-2">
-                    <x-phosphor-info class="size-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                    <p class="text-xs text-blue-700 dark:text-blue-300">
-                        O sistema tenta configurar o webhook automaticamente ao criar a instância. Use estes dados apenas para integração manual ou externa.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
-            <button type="button" wire:click="closeSettingsModal" class="btn btn-primary">Fechar</button>
-        </div>
-    </x-modal>
-    @endif
-
     {{-- QR Code Modal --}}
     @if($showQrModal)
     <x-modal model="showQrModal" title="Conectar — {{ $qrInstanceName }}" maxWidth="sm">
@@ -195,4 +151,6 @@
         </div>
     </div>
     @endif
+
+    <livewire:connections.settings-modal />
 </div>

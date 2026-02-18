@@ -29,31 +29,9 @@ class ConnectionManager extends Component
 
     public bool $loading = false;
 
-    public bool $showSettingsModal = false;
-
-    public ?string $selectedWebhookUrl = null;
-
-    public ?string $selectedToken = null;
-
     private function getAccountId(): int
     {
         return config('services.chatwoot.account_id');
-    }
-
-    #[On('openSettingsModal')]
-    public function openSettingsModal(string $instanceName): void
-    {
-        $this->selectedWebhookUrl = config('app.url')."/api/webhook/{$instanceName}";
-        $this->selectedToken = 'sec_'.substr(md5($instanceName), 0, 10);
-
-        $this->showSettingsModal = true;
-    }
-
-    public function closeSettingsModal(): void
-    {
-        $this->showSettingsModal = false;
-        $this->selectedWebhookUrl = null;
-        $this->selectedToken = null;
     }
 
     public function render(): View
