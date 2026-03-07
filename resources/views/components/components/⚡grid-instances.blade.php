@@ -174,7 +174,7 @@ new class extends Component
 
                     @if ($instance['status'] === 'connected')
                         <button type="button" 
-                            wire:click="$dispatch('disconnectInstance', ['name' => '{{ $instance['name'] }}'])"
+                            wire:click="$dispatch('disconnectInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}'})"
                             wire:confirm="Tem certeza que deseja desconectar a instância '{{ $instance['friendly_name'] }}'?"
                             class="btn btn-ghost btn-xs text-red-600" title="Desconectar">
                             <x-phosphor-sign-out class="size-5" />
