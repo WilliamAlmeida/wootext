@@ -219,6 +219,7 @@ class ConnectionManager extends Component
         }
     }
 
+    #[On('disconnectInstance')]
     public function disconnectInstance(string $name, string $provider): void
     {
         try {
