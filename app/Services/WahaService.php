@@ -130,7 +130,7 @@ class WahaService
 
     public function logout(string $name): array
     {
-        $response = $this->client()->post("/api/sessions/{$name}/auth/logout");
+        $response = $this->client()->post("/api/sessions/{$name}/logout");
 
         return $response->json() ?? [];
     }
