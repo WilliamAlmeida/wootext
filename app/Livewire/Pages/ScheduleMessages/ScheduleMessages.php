@@ -4,11 +4,13 @@ namespace App\Livewire\Pages\ScheduleMessages;
 
 use App\Models\Card;
 use App\Models\ScheduledMessage;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -31,7 +33,6 @@ class ScheduleMessages extends Component
     public ?ScheduledMessage $editingMessage = null;
 
     public ?int $selectedConversationId = null;
-    public array $availableCards = [];
 
     public $perPage = 20;
 
@@ -41,16 +42,8 @@ class ScheduleMessages extends Component
         return ScheduledMessage::with('card')->orderBy('scheduled_at', 'desc')->paginate($this->perPage);
     }
 
-    public function create()
+    public function create(): void
     {
-        $this->availableCards = Card::orderBy('updated_at', 'desc')->limit(20)->get()->map(function ($c) {
-            return [
-                'id' => $c->id,
-                'conversation_id' => $c->conversation_id,
-                'custom_name' => $c->custom_name,
-            ];
-        })->toArray();
-
         $this->resetForm();
 
         $this->datetime = now()->addMinutes(5)->format('Y-m-d\TH:i');
@@ -58,7 +51,28 @@ class ScheduleMessages extends Component
         $this->showScheduleModal = true;
     }
 
-    public function edit(int $messageId)
+    public ?string $filterCard = null;
+
+    #[Computed]
+    public function availableCards(): array
+    {
+        $query = Card::whereNotNull('phone_number');
+
+        $filterCard = trim((string) $this->filterCard);
+
+        if ($filterCard !== '') {
+            $query->where(function (Builder $builder) use ($filterCard): void {
+                $builder
+                    ->where('custom_name', 'like', '%' . $filterCard . '%')
+                    ->orWhere('phone_number', 'like', '%' . $filterCard . '%')
+                    ->orWhere('conversation_id', 'like', '%' . $filterCard . '%');
+            });
+        }
+
+        return $query->orderBy('custom_name')->orderBy('updated_at', 'desc')->limit(20)->get()->toArray();
+    }
+
+    public function edit(int $messageId): void
     {
         $message = ScheduledMessage::with('card')->findOrFail($messageId);
 
@@ -77,7 +91,7 @@ class ScheduleMessages extends Component
         $this->showScheduleModal = true;
     }
 
-    public function delete(int $messageId)
+    public function delete(int $messageId): void
     {
         $message = ScheduledMessage::with('card')->findOrFail($messageId);
 
@@ -102,7 +116,7 @@ class ScheduleMessages extends Component
         $this->dispatch('notify', type: 'success', message: 'Mensagem agendada deletada com sucesso.');
     }
 
-    public function save()
+    public function save(): void
     {
         if (! $this->card) {
             // If no card is currently set, try to resolve from the selected conversation id.
@@ -157,7 +171,7 @@ class ScheduleMessages extends Component
                     'message' => trim($this->content),
                     'scheduled_at' => $scheduledAt,
                     'status' => 'pending',
-                    'created_by' => auth()->id() ?? 0,
+                    'created_by' => Auth::id() ?? 0,
                     'api_token' => config('services.chatwoot.api_token'),
                     'attachments' => $this->buildAttachmentsPayload(),
                 ]);
@@ -178,8 +192,13 @@ class ScheduleMessages extends Component
     {
         $this->content = '';
         $this->attachment = null;
+        $this->card = null;
         $this->editingMessageId = null;
+        $this->editingMessage = null;
         $this->datetime = now()->addMinutes(5)->format('Y-m-d\TH:i');
+        $this->selectedConversationId = null;
+        $this->filterCard = null;
+        $this->showScheduleModal = false;
     }
 
     private function buildAttachmentsPayload(): ?array
@@ -227,7 +246,7 @@ class ScheduleMessages extends Component
         }
     }
 
-    public function render()
+    public function render(): View
     {
         return view('pages.schedule-messages.index');
     }

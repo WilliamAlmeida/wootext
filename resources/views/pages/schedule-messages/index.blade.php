@@ -109,14 +109,76 @@
                         {{ 'Conversa #' . $card?->conversation_id }}
                     </h5>
                 @else
-                    <div>
+                    <div
+                        x-data="searchableConversationSelect()"
+                        x-on:click.outside="closeList()"
+                        x-on:keydown.escape.prevent.stop="closeList()"
+                        class="relative"
+                    >
                         <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Conversa</label>
-                        <select wire:model="selectedConversationId" class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
-                            <option value="">Selecione uma conversa...</option>
-                            @foreach($availableCards as $c)
-                                <option value="{{ $c['conversation_id'] }}">{{ $c['custom_name'] }} (Conversa #{{ $c['conversation_id'] }})</option>
-                            @endforeach
-                        </select>
+                        <div class="relative">
+                            <input
+                                x-ref="searchInput"
+                                type="text"
+                                wire:model.live.debounce.300ms="filterCard"
+                                x-on:focus="openList()"
+                                x-on:input="handleInput()"
+                                x-on:keydown.arrow-down.prevent="moveHighlight(1)"
+                                x-on:keydown.arrow-up.prevent="moveHighlight(-1)"
+                                x-on:keydown.enter.prevent="selectHighlighted()"
+                                placeholder="Digite nome, telefone ou ID da conversa..."
+                                autocomplete="off"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-controls="scheduled-message-conversations"
+                                :aria-expanded="open.toString()"
+                                class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 pr-10 text-zinc-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100"
+                            />
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 dark:text-zinc-500">
+                                <x-phosphor-magnifying-glass class="size-4" />
+                            </span>
+                        </div>
+
+                        <div
+                            x-cloak
+                            x-show="open"
+                            x-transition.opacity.duration.100ms
+                            id="scheduled-message-conversations"
+                            class="absolute z-20 mt-2 max-h-64 w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+                        >
+                            <div x-ref="options" class="max-h-64 overflow-y-auto py-1">
+                                @forelse($this->availableCards as $c)
+                                    @php($conversationName = $c['custom_name'] ?: $c['phone_number'])
+                                    @php($conversationLabel = $conversationName . ' (Conversa #' . $c['conversation_id'] . ')')
+                                    <button
+                                        type="button"
+                                        wire:key="conversation-option-{{ $c['id'] ?? $c['conversation_id'] }}"
+                                        data-option
+                                        x-on:mouseenter="highlightedIndex = {{ $loop->index }}"
+                                        x-on:click="selectOption({{ (int) $c['conversation_id'] }}, @js($conversationLabel))"
+                                        :class="highlightedIndex === {{ $loop->index }} ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-200' : 'text-zinc-700 dark:text-zinc-200'"
+                                        class="flex w-full items-start justify-between gap-3 px-3 py-2 text-left transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                                    >
+                                        <span class="min-w-0">
+                                            <span class="block truncate text-sm font-medium">{{ $conversationName }}</span>
+                                            <span class="block truncate text-xs text-zinc-500 dark:text-zinc-400">{{ $c['phone_number'] }} · Conversa #{{ $c['conversation_id'] }}</span>
+                                        </span>
+                                        <x-phosphor-arrow-right class="mt-0.5 size-4 shrink-0 text-zinc-300 dark:text-zinc-600" />
+                                    </button>
+                                @empty
+                                    <div class="px-3 py-4 text-sm text-zinc-500 dark:text-zinc-400">
+                                        Nenhuma conversa encontrada para esse filtro.
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        @if($selectedConversationId)
+                            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                                Conversa selecionada: #{{ $selectedConversationId }}
+                            </p>
+                        @endif
+
                         @error('selectedConversationId') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
                     </div>
                 @endif
