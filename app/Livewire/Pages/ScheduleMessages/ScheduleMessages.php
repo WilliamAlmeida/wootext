@@ -53,6 +53,11 @@ class ScheduleMessages extends Component
 
     public ?string $filterCard = null;
 
+    public function updatedFilterCard(): void
+    {
+        $this->selectedConversationId = null;
+    }
+
     #[Computed]
     public function availableCards(): array
     {

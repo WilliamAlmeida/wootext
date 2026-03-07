@@ -20,12 +20,6 @@ export function registerSearchableConversationSelect() {
                 this.highlightedIndex = 0;
             },
 
-            handleInput() {
-                this.$wire.$set('selectedConversationId', null);
-                this.open = true;
-                this.highlightedIndex = 0;
-            },
-
             moveHighlight(step) {
                 const options = this.optionElements();
 

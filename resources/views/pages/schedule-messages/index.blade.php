@@ -122,7 +122,6 @@
                                 type="text"
                                 wire:model.live.debounce.300ms="filterCard"
                                 x-on:focus="openList()"
-                                x-on:input="handleInput()"
                                 x-on:keydown.arrow-down.prevent="moveHighlight(1)"
                                 x-on:keydown.arrow-up.prevent="moveHighlight(-1)"
                                 x-on:keydown.enter.prevent="selectHighlighted()"
