@@ -253,6 +253,24 @@ class ConnectionManager extends Component
         }
     }
 
+    #[On('startInstance')]
+    public function startInstance(string $name, string $provider): void
+    {
+        try {
+            if ($provider === 'evolution') {
+                throw new \Exception('Iniciar não suportado para Evolution. Use Conectar.');
+
+            } else if ($provider === 'waha') {
+                $response = app(WahaService::class)->startSession($name);
+            }
+
+            $this->dispatch('fetchInstances', $provider);
+            $this->fetchInstancesTimeout($provider, 5000);
+        } catch (\Throwable $exception) {
+            $this->dispatch('notify', type: 'error', message: 'Erro: '.$exception->getMessage());
+        }
+    }
+
     public bool $showDeleteModal = false;
 
     public array $deleteTarget = [];
