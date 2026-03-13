@@ -28,9 +28,11 @@ class WahaService
 
     // ── Sessions ──
 
-    public function listSessions(): array
+    public function listSessions($includeStopped = false): array
     {
-        $response = $this->client()->get('/api/sessions');
+        $response = $this->client()->get('/api/sessions', [
+            'all' => $includeStopped ? 'true' : 'false',
+        ]);
 
         return $response->json() ?? [];
     }

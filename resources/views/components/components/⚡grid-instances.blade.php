@@ -47,7 +47,7 @@ new class extends Component
 
         if($this->provider == 'waha') {
             try {
-                $wahaSessions = app(WahaService::class)->listSessions();
+                $wahaSessions = app(WahaService::class)->listSessions(true);
     
                 foreach ($wahaSessions as $session) {
                     $name = $session['name'] ?? '';
@@ -108,7 +108,8 @@ new class extends Component
 
         return match (true) {
             str_contains($status, 'open') || str_contains($status, 'connected') || $status === 'working' => 'connected',
-            str_contains($status, 'close') || str_contains($status, 'disconnected') || $status === 'stopped' => 'disconnected',
+            str_contains($status, 'close') || str_contains($status, 'disconnected') => 'disconnected',
+            $status === 'stopped' => 'stopped',
             str_contains($status, 'qr') || str_contains($status, 'scan') => 'qr_pending',
             default => 'unknown',
         };
@@ -150,13 +151,14 @@ new class extends Component
                         </span>
                         <span class="badge {{ match($instance['status']) { 
                             'connected' => 'text-green-700 dark:text-green-300', 
-                            'disconnected' => 'text-red-700 dark:text-red-300', 
+                            'disconnected', 'stopped' => 'text-red-700 dark:text-red-300', 
                             'qr_pending' => 'text-yellow-700 dark:text-yellow-300', 
                             default => 'text-zinc-700 dark:text-zinc-300' 
                         } }}">
                             {{ match($instance['status']) {
                                 'connected' => 'Conectado',
                                 'disconnected' => 'Desconectado',
+                                'stopped' => 'Parado',
                                 'qr_pending' => 'QR Pendente',
                                 default => 'Desconhecido',
                             } }}
@@ -164,35 +166,44 @@ new class extends Component
                     </div>
                 </div>
                 <div class="flex items-center gap-1 *:hover:cursor-pointer">
-                    @if ($instance['status'] !== 'connected')
+                    @if ($instance['status'] === 'stopped')
                         <button type="button" 
-                            wire:click="$dispatch('connectInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}'})"
-                            class="btn btn-ghost btn-xs" title="Conectar (QR Code)">
-                            <x-phosphor-qr-code class="size-5" />
+                            wire:click="$dispatch('startInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}'})"
+                            class="btn btn-ghost btn-xs" title="Iniciar">
+                            <x-phosphor-play class="size-5" />
+                        </button>
+                    @else
+                        @if ($instance['status'] !== 'connected')
+                            <button type="button" 
+                                wire:click="$dispatch('connectInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}'})"
+                                class="btn btn-ghost btn-xs" title="Conectar (QR Code)">
+                                <x-phosphor-qr-code class="size-5" />
+                            </button>
+                        @endif
+
+                        @if ($instance['status'] === 'connected')
+                            <button type="button" 
+                                wire:click="$dispatch('disconnectInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}'})"
+                                wire:confirm="Tem certeza que deseja desconectar a instância '{{ $instance['friendly_name'] }}'?"
+                                class="btn btn-ghost btn-xs text-red-600" title="Desconectar">
+                                <x-phosphor-sign-out class="size-5" />
+                            </button>
+                        @endif
+
+                        <button type="button" 
+                            wire:click="$dispatch('restartInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}'})"
+                            wire:confirm="Tem certeza que deseja reiniciar a instância '{{ $instance['friendly_name'] }}'? Isso irá desconectar e reconectar a instância, o que pode resolver problemas temporários."
+                            class="btn btn-ghost btn-xs" title="Reiniciar">
+                            <x-phosphor-arrows-clockwise class="size-5" />
+                        </button>
+
+                        <button type="button" 
+                            wire:click="$dispatch('openSettingsModal', {name: '{{ $instance['name'] }}', provider: '{{ $instance['provider'] }}', friendly_name: '{{ $instance['friendly_name'] }}'})"
+                            class="btn btn-ghost btn-xs" title="Configurações">
+                            <x-phosphor-gear class="size-5" />
                         </button>
                     @endif
 
-                    @if ($instance['status'] === 'connected')
-                        <button type="button" 
-                            wire:click="$dispatch('disconnectInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}'})"
-                            wire:confirm="Tem certeza que deseja desconectar a instância '{{ $instance['friendly_name'] }}'?"
-                            class="btn btn-ghost btn-xs text-red-600" title="Desconectar">
-                            <x-phosphor-sign-out class="size-5" />
-                        </button>
-                    @endif
-
-                    <button type="button" 
-                        wire:click="$dispatch('restartInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}'})"
-                        wire:confirm="Tem certeza que deseja reiniciar a instância '{{ $instance['friendly_name'] }}'? Isso irá desconectar e reconectar a instância, o que pode resolver problemas temporários."
-                        class="btn btn-ghost btn-xs" title="Reiniciar">
-                        <x-phosphor-arrows-clockwise class="size-5" />
-                    </button>
-
-                    <button type="button" 
-                        wire:click="$dispatch('openSettingsModal', {name: '{{ $instance['name'] }}', provider: '{{ $instance['provider'] }}', friendly_name: '{{ $instance['friendly_name'] }}'})"
-                        class="btn btn-ghost btn-xs" title="Configurações">
-                        <x-phosphor-gear class="size-5" />
-                    </button>
 
                     <button type="button" 
                         wire:click="$dispatch('deleteInstance', {'name': '{{ $instance['name'] }}', 'provider': '{{ $instance['provider'] }}', 'friendly_name': '{{ $instance['friendly_name'] }}'})"
